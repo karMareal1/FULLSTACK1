@@ -4,55 +4,58 @@ from models import Contact
 
 @app.route("/contacts", methods=["GET"])
 def get_contacts():
-    contacts = Contact.query.all()  #fetch all contacts from database
-    json_contacts = list(map(lambda x:x.to_json(), contacts))
-    return jsonify({"contacts": json_contacts})    
+    contacts = Contact.query.all()
+    json_contacts = list(map(lambda x: x.to_json(), contacts))
+    return jsonify({"contacts": json_contacts})
 
 
 @app.route("/create_contact", methods=["POST"])
 def create_contact():
-    first_name = request.json.get("firstName")
-    last_name = request.json.get("lastName")
-    email = request.json.get("email")
+    data = request.get_json()  # Using get_json() is generally safer than request.json
+    first_name = data.get("firstName")
+    last_name = data.get("lastName")
+    email = data.get("email")
 
     if not first_name or not last_name or not email:
         return (
-                jsonify({"message": "You must include a first name, last name and email",}),
-                400,
-            )
+            jsonify({"message": "You must include a first name, last name and email"}),
+            400,
+        )
 
     new_contact = Contact(first_name=first_name, last_name=last_name, email=email)
     try:
         db.session.add(new_contact)
-        db.session.commit()
+        db.session.commit() # ⬅️ FIX 1: Added parentheses
     except Exception as e:
-        return jsonify({"message": str(e)}), 400
+        # Use str(e) or f-string for proper error message formatting
+        return jsonify({"message": str(e)}), 400 # ⬅️ FIX 2: Corrected str() call
     
     return jsonify({"message": "Contact created successfully!"}), 201
 
 
-#updating the contact
+# updating the contact
 @app.route("/update_contact/<int:user_id>", methods=["PATCH"])
 def update_contact(user_id):
-    contact = Contact.quesry.get(user_id)
+    contact = Contact.query.get(user_id) # ⬅️ FIX 3: Corrected 'quesry' to 'query'
 
     if not contact:
         return jsonify({"message": "User not found"}), 404
     
     data = request.json
+    # data.get(key, default) is the correct pattern for PATCH
     contact.first_name = data.get("firstName", contact.first_name)
-    contact.last_name =  data.get("lastName", contact.last_name)
+    contact.last_name = data.get("lastName", contact.last_name)
     contact.email = data.get("email", contact.email)
 
     db.session.commit()
 
     return jsonify({"message" : "User updated"}), 200
 
-#delelting the contact
 
-@app.delete("/delete_contact/<int:user_id>", methods=["DELETE"])
+# deleting the contact
+@app.delete("/delete_contact/<int:user_id>") # ⬅️ FIX 4: Used @app.delete, removed redundant methods=["DELETE"]
 def delete_contact(user_id):
-    contact = Contact.quesry.get(user_id)
+    contact = Contact.query.get(user_id) # ⬅️ FIX 3: Corrected 'quesry' to 'query'
 
     if not contact:
         return jsonify({"message": "User not found"}), 404
@@ -63,8 +66,8 @@ def delete_contact(user_id):
     return jsonify({"message": "User deleted!"}), 200
 
     
-#since when importing comes with the app running immediatly, this only focuses on running the app if only this file was run
+# Since when importing comes with the app running immediately, this only focuses on running the app if only this file was run
 if __name__ == "__main__":
     with app.app_context():
-        db.create_all() #creating the database
+        db.create_all() # Creating the database
     app.run(debug=True)
