@@ -8,4 +8,10 @@ class Contact(db.Model):
     
     #convert all tools (id, first_name, etc) and convert it into a python dictionary
     def to_json(self):
-        
+        return {
+            "id": self.id,
+            "firstName": self.first_name,
+            "lastName": self.last_name,
+            "email": self.email,
+
+        }
