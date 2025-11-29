@@ -5,7 +5,23 @@ const ContactForm = () => {
     const [lastName, setLastName] = useState("")
     const [email, setEmail] = useState("")
 
-    return <form>
+    const onSubmit = (e) => {
+        e.preventDefault()
+
+        const data = {
+            firstName,
+            lastName,
+            email
+        }
+        const url = "http://127.0.0.1:5000/create_contact"
+        const options = {
+            method: "POST",
+            
+        }
+    }
+
+
+    return <form onSubmit={onSubmit}>
         <div>
             <label htmlFor="firstName">First Name:</label>
             <input 
