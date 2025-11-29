@@ -3,7 +3,7 @@ import './App.css'
 import ContactList from './ContactList'
 
 function App() {
-const [contacts, setContacts] = useState([{"firstName":"John","lastName":"Doe","email":"john.doe@example.com", "id":1},]) 
+const [contacts, setContacts] = useState([]) 
 
 useEffect(() => {
   // fetchContacts()
